@@ -22,7 +22,6 @@ def randTime():
         mins = str(f"0{mins}")
     else:
         mins = str(mins)
-
     timestamp = hr + ":" + mins
     return timestamp
 
@@ -41,11 +40,10 @@ def send_message():
 
 time1 = randTime()
 time2 = randTime()
-while time2 == time1:
+while abs(int(time2[:2]) - int(time1[:2])) <= 1:
     time2 = randTime()
 schedule.every().day.at(time1).do(send_message)
 schedule.every().day.at(time2).do(send_message)
-
 while True:
     schedule.run_pending()
     time.sleep(1)
