@@ -57,7 +57,7 @@ def randTime(min_hour_diff):  # returns a sorted list of timestamps to send mess
     timestamp2 = hr2 + ":" + mins2
     if int(hr1) < int(hr2):
         return [timestamp1, timestamp2]
-    return [timestamp2, timestamp2]
+    return [timestamp2, timestamp1]
 
 
 msg_order_dict = {}
@@ -67,9 +67,10 @@ msg_order_dict[timestamps[0]] = "1st"
 msg_order_dict[timestamps[1]] = "2nd"
 read_excel("C:\\Users\gosho\Downloads\ExpertPanel_Contacts.csv", name_number_dict, number_link_dict)
 
+
 def send_message(message_order):
     if message_order == "2nd":
-        disclaimer = "\nIf you missed the first diary, then just fill out this one (2nd one) and do not worry about the first one.\n\n"
+        disclaimer = "\nIf you missed the first diary, then just fill out this one (2nd one) and do not worry about the first one."
     else:
         disclaimer = ""
     for nameKey in name_number_dict:
@@ -80,20 +81,18 @@ def send_message(message_order):
         # add ""
 
         messages = [
-            f"{today}\n{disclaimer}Hi {name}, I hope this message finds you well. This is a friendly reminder to complete the {message_order} diary now by clicking on the following link: {link}.\n\nThank you!\nPlease note that this is an automated message, so there is no need to reply directly to it. If you have any questions or concerns, please feel free to reach out to our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hello {name}, Just a quick reminder to complete the {message_order} diary by accessing the following link: {link}.\n\nYour input is greatly appreciated!\nPlease note that this is an automated message, so there is no need to reply directly to it. If you have any questions or concerns, please feel free to reach out to our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hey there, {name}, Just wanted to gently remind you to take a moment and complete the {message_order} diary using the provided link: {link}.\n\nIf you have any questions, don't hesitate to reach out to our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hi {name}! Friendly reminder to finish the {message_order} diary task. Simply click on the link provided: {link}.\n\nShould you have any concerns, feel free to contact our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Greetings, {name}, Just a gentle nudge to complete the {message_order} diary by accessing the following link: {link}.\n\nIf you have any questions or need assistance, don't hesitate to reach out to our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hello {name}, This is a friendly reminder to kindly complete the {message_order} diary using the provided link: {link}.\n\nIf you require any clarifications or have concerns, please feel free to contact our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hi there, {name}, Just a quick reminder to complete the {message_order} diary task. Please click on the following link: {link}.\n\nIf you need assistance, reach out to our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hey {name}! We kindly remind you to finish the {message_order} diary by clicking on the provided link: {link}.\n\nShould you have any questions or concerns, feel free to contact our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hi {name}, Just a friendly reminder to complete the {message_order} diary using the link below: {link}.\n\nIf you have any queries or need support, don't hesitate to reach out to our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hello, {name}, This is a gentle reminder to complete the {message_order} diary task at your convenience. You can access it through the following link: {link}.\n\nFor any questions or concerns, feel free to contact our team at hsulon@iu.edu or text (769) 567-4373.",
-            f"{today}\n{disclaimer}Hey {name}! Just a quick reminder to wrap up the {message_order} diary by using the provided link: {link}.\n\nIf you need any assistance or have questions, don't hesitate to reach out to our team at hsulon@iu.edu or text (769) 567-4373."
+            f"{today}\nHi {name}, I hope this message finds you well. This is a friendly reminder to complete the {message_order} diary now by clicking on the following link: {link}.\n\nThank you!\nPlease note that this is an automated message, so there is no need to reply directly to it. If you have any questions or concerns, please feel free to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHello {name}, Just a quick reminder to complete the {message_order} diary by accessing the following link: {link}.\n\nYour input is greatly appreciated!\nPlease note that this is an automated message, so there is no need to reply directly to it. If you have any questions or concerns, please feel free to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHey there, {name}, Just wanted to gently remind you to take a moment and complete the {message_order} diary using the provided link: {link}.\n\nIf you have any questions, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHi {name}! Friendly reminder to finish the {message_order} diary task. Simply click on the link provided: {link}.\n\nShould you have any concerns, feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nGreetings, {name}, Just a gentle nudge to complete the {message_order} diary by accessing the following link: {link}.\n\nIf you have any questions or need assistance, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHello {name}, This is a friendly reminder to kindly complete the {message_order} diary using the provided link: {link}.\n\nIf you require any clarifications or have concerns, please feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHi there, {name}, Just a quick reminder to complete the {message_order} diary task. Please click on the following link: {link}.\n\nIf you need assistance, reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHey {name}! We kindly remind you to finish the {message_order} diary by clicking on the provided link: {link}.\n\nShould you have any questions or concerns, feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHi {name}, Just a friendly reminder to complete the {message_order} diary using the link below: {link}.\n\nIf you have any queries or need support, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHello, {name}, This is a gentle reminder to complete the {message_order} diary task at your convenience. You can access it through the following link: {link}.\n\nFor any questions or concerns, feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
+            f"{today}\nHey {name}! Just a quick reminder to wrap up the {message_order} diary by using the provided link: {link}.\n\nIf you need any assistance or have questions, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}"
         ]
-
-        print(random.choice(messages), "\n")
 
         resp = requests.post('http://textbelt.com/text', {
             'phone': str(number),
@@ -105,9 +104,8 @@ def send_message(message_order):
 
 schedule.every().day.at(timestamps[0]).do(send_message, message_order=msg_order_dict[timestamps[0]])
 schedule.every().day.at(timestamps[1]).do(send_message, message_order=msg_order_dict[timestamps[1]])
-schedule.every().day.at('16:15').do(send_message, message_order="3rd")
+schedule.every().day.at('16:15').do(send_message, message_order="1st")
 print(timestamps)
-print(name_number_dict)
 
 while True:
     schedule.run_pending()
