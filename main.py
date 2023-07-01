@@ -9,7 +9,7 @@ API_KEY = 'f30d6e982b2202e92b1e4d580d4a5a3d096e9d78nrcyurvBbxZgVCwKSM6pld41G'  #
 
 
 message_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
-contacts_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.csv"
+contacts_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.xlsx"
 minimum_hr_diff = 2
 
 number_link_dict = {
@@ -21,7 +21,7 @@ name_number_dict = {
 
 
 def load_contacts(filepath, name_number_dictionary, number_link_dictionary):
-    df = pd.read_csv(filepath)
+    df = pd.read_excel(filepath)
     df['Phone_Number'] = df['Phone_Number'].astype(str)
     for row in df.index:
         name_number_dictionary[df['FirstName'][row]] = df['Phone_Number'][row]
