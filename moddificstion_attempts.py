@@ -6,6 +6,10 @@ import datetime
 import pandas as pd
 
 API_KEY = 'f30d6e982b2202e92b1e4d580d4a5a3d096e9d78nrcyurvBbxZgVCwKSM6pld41G'
+messages_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
+contacts_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.xlsx"
+minimum_time_diff_in_hrs = 2
+messages_per_person = 2
 
 class Person:
     def __init__(self, Name, Cell, Link):
@@ -68,12 +72,7 @@ def randTimeV2(min_diff, num_of_sms):
     return hr_set
 
 
-messages_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
-contacts_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.xlsx"
-minimum_time_diff = 2
-messages_per_person = 2
-
-timestamps = randTimeV2(minimum_time_diff, messages_per_person)
+timestamps = randTimeV2(minimum_time_diff_in_hrs, messages_per_person)
 print(timestamps)
 message_receivers_list = load_contactsV2(contacts_filepath)
 load_messagesV2(messages_filepath, message_receivers_list, messages_per_person)
