@@ -7,10 +7,49 @@ import pandas as pd
 
 API_KEY = 'f30d6e982b2202e92b1e4d580d4a5a3d096e9d78nrcyurvBbxZgVCwKSM6pld41G'
 
-msg_order_dict = {}
+class Person:
+    def __init__(self, Name, Cell, Link):
+        self.name = Name
+        self.phone = Cell
+        self.link = Link
+        self.messages = []
+
+    def add_message(self, sms):
+        self.messages.append(sms)
 
 
-def randTime(min_hour_diff):  # returns a sorted list of timestamps to send messages i.e ["12:03", "17:47"]
+def load_contactsV2(filepath):
+    panelists = []
+    df = pd.read_excel(filepath)
+    for row in df.index:
+        panelists.append(Person(df['FirstName'][row], df['Phone_Number'][row], df['Link'][row]))
+    return panelists
+
+
+def load_messagesV2(filepath, panelists, num_of_msg):
+    df = pd.read_excel(filepath)
+    for panelist in panelists:
+        copy_of_msg_num = num_of_msg
+        while copy_of_msg_num:
+            message_order = "1st" if panelist.messages == [] else "2nd"
+            disclaimer = "" if message_order == "1st" else "\nIf you missed the first diary, then just fill out this one (2nd one) and do not worry about the first one."
+            today = datetime.datetime.now().strftime("%B ,%d")
+            panelist.add_message((df['message'][random.randrange(0, len(df.index), 1)] % (today, panelist.name, message_order, panelist.link, disclaimer)).format(newline='\n'))
+            copy_of_msg_num -= 1
+
+
+def send_messageV2():
+    for panelist in message_receivers_list:
+        resp = requests.post('http://textbelt.com/text', {
+            'phone': panelist.phone,
+            'message': panelist.messages[0],
+            'key': API_KEY
+        })
+        panelist.messages.pop(0)
+        print(resp.json())
+
+
+def randTimeV2(min_diff, num_of_sms):
     def padding(num):
         if num < 10:
             num = str(f"0{num}")
@@ -18,98 +57,30 @@ def randTime(min_hour_diff):  # returns a sorted list of timestamps to send mess
             num = str(num)
         return num
 
-    hr1 = random.randrange(8, 20, 1)
-    hr2 = random.randrange(8, 20, 1)
-    hr2 = padding(hr2)
-    hr1 = padding(hr1)
-    while abs(int(hr2) - int(hr1)) <= min_hour_diff:  # ensuring that the times are spaced by at least an hour
-        hr2 = random.randrange(8, 20, 1)
-        hr2 = padding(hr2)
-
-    mins1 = random.randrange(0, 59, 1)
-    mins2 = random.randrange(0, 59, 1)
-    mins1 = padding(mins1)
-    mins2 = padding(mins2)
-    timestamp1 = hr1 + ":" + mins1
-    timestamp2 = hr2 + ":" + mins2
-    if int(hr1) < int(hr2):
-        return [timestamp1, timestamp2]
-    return [timestamp2, timestamp2]
+    hr_set = set({})
+    start_hr = 8
+    end_hr = 20
+    while num_of_sms != len(hr_set):
+        hr_set.add(random.randrange(start_hr, end_hr, min_diff))
+    hr_set = sorted(list(hr_set))
+    for index in range(0, len(hr_set)):
+        hr_set[index] = padding(hr_set[index]) + ":" + padding(random.randrange(0, 59, 1))
+    return hr_set
 
 
-min_time_diff = 2
-# timestamps = randTime(min_time_diff)
-# print(timestamps)
-timestamps = ["00:59", "01:00"]
-msg_order_dict[timestamps[0]] = "1st"
-msg_order_dict[timestamps[1]] = "2nd"
+messages_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
+contacts_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.xlsx"
+minimum_time_diff = 2
+messages_per_person = 2
 
+timestamps = randTimeV2(minimum_time_diff, messages_per_person)
+print(timestamps)
+message_receivers_list = load_contactsV2(contacts_filepath)
+load_messagesV2(messages_filepath, message_receivers_list, messages_per_person)
 
-# def send_message(message_order):
-#     resp = requests.post('http://textbelt.com/text', {
-#         'phone': str(7695674373),
-#         'message': f"{message_order} message {datetime.datetime.now().strftime(' %B, %d')}",
-#         'key': API_KEY
-#     })
-#     print(resp.json())
+for Time in timestamps:
+    schedule.every().day.at(Time).do(send_messageV2)
 
-
-
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
-#
-# print(datetime.datetime.now().strftime('%B, %d'))
-
-name_number_dict = {}
-number_link_dict = {}
-
-def load_contacts(filepath, name_number_dictionary, number_link_dictionary):
-    df = pd.read_csv(filepath)
-    df['Phone_Number'] = df['Phone_Number'].astype(str)
-    for row in df.index:
-        name_number_dictionary[df['FirstName'][row]] = df['Phone_Number'][row]
-        number_link_dictionary[df['Phone_Number'][row]] = df['Link'][row]
-
-
-load_contacts("C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.csv", name_number_dict, number_link_dict)
-print(name_number_dict)
-
-
-messagefile = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
-def send_message(message_order):
-    def load_messages(filepath):
-        messages_list = []
-        df = pd.read_excel(filepath)
-        for row in df.index:
-            messages_list.append((df['message'][row] % (today, name, message_order, link, disclaimer)).format(newline='\n'))
-        return messages_list
-
-    if message_order == "2nd":
-        disclaimer = "\nIf you missed the first diary, then just fill out this one (2nd one) and do not worry about the first one."
-    else:
-        disclaimer = ""
-    for nameKey in name_number_dict:
-        name = nameKey
-        number = name_number_dict[name]
-        link = number_link_dict[number]
-        today = datetime.datetime.now().strftime('%B, %d')
-
-        messages = [
-            f"{today}\nHi {name}, I hope this message finds you well. This is a friendly reminder to complete the {message_order} diary now by clicking on the following link: {link}.\n\nThank you!\nPlease note that this is an automated message, so there is no need to reply directly to it. If you have any questions or concerns, please feel free to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHello {name}, Just a quick reminder to complete the {message_order} diary by accessing the following link: {link}.\n\nYour input is greatly appreciated!\nPlease note that this is an automated message, so there is no need to reply directly to it. If you have any questions or concerns, please feel free to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHey there, {name}, Just wanted to gently remind you to take a moment and complete the {message_order} diary using the provided link: {link}.\n\nIf you have any questions, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHi {name}! Friendly reminder to finish the {message_order} diary task. Simply click on the link provided: {link}.\n\nShould you have any concerns, feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nGreetings, {name}, Just a gentle nudge to complete the {message_order} diary by accessing the following link: {link}.\n\nIf you have any questions or need assistance, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHello {name}, This is a friendly reminder to kindly complete the {message_order} diary using the provided link: {link}.\n\nIf you require any clarifications or have concerns, please feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHi there, {name}, Just a quick reminder to complete the {message_order} diary task. Please click on the following link: {link}.\n\nIf you need assistance, reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHey {name}! We kindly remind you to finish the {message_order} diary by clicking on the provided link: {link}.\n\nShould you have any questions or concerns, feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHi {name}, Just a friendly reminder to complete the {message_order} diary using the link below: {link}.\n\nIf you have any queries or need support, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHello, {name}, This is a gentle reminder to complete the {message_order} diary task at your convenience. You can access it through the following link: {link}.\n\nFor any questions or concerns, feel free to contact our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}",
-            f"{today}\nHey {name}! Just a quick reminder to wrap up the {message_order} diary by using the provided link: {link}.\n\nIf you need any assistance or have questions, don't hesitate to reach out to our team at pgoshomi@iu.edu or text (769) 567-4373.{disclaimer}"
-        ]
-    messages1 = load_messages(messagefile)
-    print(messages1[0])
-
-send_message("2nd")
+while True:
+    schedule.run_pending()
+    time.sleep(1)
