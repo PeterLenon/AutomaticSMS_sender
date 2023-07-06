@@ -5,7 +5,7 @@ import random
 import datetime
 import pandas as pd
 
-API_KEY = 'f30d6e982b2202e92b1e4d580d4a5a3d096e9d78nrcyurvBbxZgVCwKSM6pld41G'  # NEVER TOUCH THIS
+API_KEY = '477344530fb151b3584e2342f242ad24bedf766eIhSx1L7fznqthfbdmAAYVBwcx'  # NEVER TOUCH THIS
 
 
 message_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
@@ -68,11 +68,11 @@ def send_message(message_order):
         df = pd.read_excel(filepath)
         for row in df.index:
             messages_list.append(
-                (df['message'][row] % (today, name, message_order, link, disclaimer)).format(newline='\n'))
+                (df['message'][row] % (name, message_order, today, link, disclaimer)).format(newline='\n'))
         return messages_list
 
     if message_order == "2nd":
-        disclaimer = "\nIf you missed the first diary, then just fill out this one (2nd one) and do not worry about the first one."
+        disclaimer = f"\nIf you missed the first diary of the day, then just fill out this one (2nd one) and do not worry about the first one."
     else:
         disclaimer = ""
     for nameKey in name_number_dict:
@@ -81,7 +81,6 @@ def send_message(message_order):
         link = number_link_dict[number]
         today = datetime.datetime.now().strftime('%B, %d')
         messages = load_messages(message_filepath)
-
         resp = requests.post('http://textbelt.com/text', {
             'phone': str(number),
             'message': random.choice(messages),
@@ -94,6 +93,8 @@ schedule.every().day.at(timestamps[0]).do(send_message, message_order=msg_order_
 schedule.every().day.at(timestamps[1]).do(send_message, message_order=msg_order_dict[timestamps[1]])
 print(timestamps)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
+
+send_message('2nd')

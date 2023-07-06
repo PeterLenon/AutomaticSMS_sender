@@ -36,9 +36,9 @@ def load_messagesV2(filepath, panelists, num_of_msg):
         copy_of_msg_num = num_of_msg
         while copy_of_msg_num:
             message_order = "1st" if panelist.messages == [] else "2nd"
-            disclaimer = "" if message_order == "1st" else "\nIf you missed the first diary, then just fill out this one (2nd one) and do not worry about the first one."
-            today = datetime.datetime.now().strftime("%B ,%d")
-            panelist.add_message((df['message'][random.randrange(0, len(df.index), 1)] % (today, panelist.name, message_order, panelist.link, disclaimer)).format(newline='\n'))
+            disclaimer = "" if message_order == "1st" else "\nIf you missed the first diary of the day , then just fill out this one (2nd one) and do not worry about the first one."
+            today = datetime.datetime.now().strftime("%B %d")
+            panelist.add_message((df['message'][random.randrange(0, len(df.index), 1)] % (panelist.name, message_order, today, panelist.link, disclaimer)).format(newline='\n'))
             copy_of_msg_num -= 1
 
 
