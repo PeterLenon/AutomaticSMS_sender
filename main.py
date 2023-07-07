@@ -5,30 +5,59 @@ import random
 import datetime
 import pandas as pd
 
+# API_KEY = 'f30d6e982b2202e92b1e4d580d4a5a3d096e9d78nrcyurvBbxZgVCwKSM6pld41G'
 API_KEY = '477344530fb151b3584e2342f242ad24bedf766eIhSx1L7fznqthfbdmAAYVBwcx'  # NEVER TOUCH THIS
 
-
-message_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
+messages_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Diary_Message.xlsx"
 contacts_filepath = "C:\\Users\gosho\OneDrive\Desktop\R-HouseFiles\ExpertPanel_Contacts.xlsx"
-minimum_hr_diff = 2
-
-number_link_dict = {
-    '7695674373': "https://iu.co1.qualtrics.com/jfe/form/SV_3Ua4zpnLOCrIrX0?Q_CHL=email&RID=CGC_T0k5r0tr7YabtcY&_g_=g"
-}
-name_number_dict = {
-    'Peter': '7695674373'
-}
+minimum_time_diff_in_hrs = 2
+messages_per_person = 2
 
 
-def load_contacts(filepath, name_number_dictionary, number_link_dictionary):
+class Person:
+    def __init__(self, Name, Cell, Link):
+        self.name = Name
+        self.phone = Cell
+        self.link = Link
+        self.messages = []
+
+    def add_message(self, sms):
+        self.messages.append(sms)
+
+
+def load_contactsV2(filepath):
+    panelists = []
     df = pd.read_excel(filepath)
-    df['Phone_Number'] = df['Phone_Number'].astype(str)
     for row in df.index:
-        name_number_dictionary[df['FirstName'][row]] = df['Phone_Number'][row]
-        number_link_dictionary[df['Phone_Number'][row]] = df['Link'][row]
+        panelists.append(Person(df['FirstName'][row], df['Phone_Number'][row], df['Link'][row]))
+    return panelists
 
 
-def randomize_Time(min_hour_diff):  # returns a sorted list of timestamps to send messages i.e ["12:03", "17:47"]
+def load_messagesV2(filepath, panelists, num_of_msg):
+    df = pd.read_excel(filepath)
+    for panelist in panelists:
+        copy_of_msg_num = num_of_msg
+        while copy_of_msg_num:
+            message_order = "1st" if panelist.messages == [] else "2nd"
+            disclaimer = "" if message_order == "1st" else "\nIf you missed the first diary of the day , then just fill out this one (2nd one) and do not worry about the first one."
+            today = datetime.datetime.now().strftime("%B %d")
+            panelist.add_message((df['message'][random.randrange(0, len(df.index), 1)] % (
+                panelist.name, message_order, today, panelist.link, disclaimer)).format(newline='\n'))
+            copy_of_msg_num -= 1
+
+
+def send_messageV2():
+    for panelist in message_receivers_list:
+        resp = requests.post('http://textbelt.com/text', {
+            'phone': panelist.phone,
+            'message': panelist.messages[0],
+            'key': API_KEY
+        })
+        panelist.messages.pop(0)
+        print(resp.json())
+
+
+def randTimeV2(min_diff, num_of_sms):
     def padding(num):
         if num < 10:
             num = str(f"0{num}")
@@ -36,65 +65,25 @@ def randomize_Time(min_hour_diff):  # returns a sorted list of timestamps to sen
             num = str(num)
         return num
 
-    hr1 = random.randrange(8, 20, 1)
-    hr2 = random.randrange(8, 20, 1)
-    hr2 = padding(hr2)
-    hr1 = padding(hr1)
-    while abs(int(hr2) - int(hr1)) <= min_hour_diff:  # ensuring that the times are spaced by at least an hour
-        hr2 = random.randrange(8, 20, 1)
-        hr2 = padding(hr2)
-
-    mins1 = random.randrange(0, 59, 1)
-    mins2 = random.randrange(0, 59, 1)
-    mins1 = padding(mins1)
-    mins2 = padding(mins2)
-    timestamp1 = hr1 + ":" + mins1
-    timestamp2 = hr2 + ":" + mins2
-    if int(hr1) < int(hr2):
-        return [timestamp1, timestamp2]
-    return [timestamp2, timestamp1]
+    hr_set = set({})
+    start_hr = 8
+    end_hr = 20
+    while num_of_sms != len(hr_set):
+        hr_set.add(random.randrange(start_hr, end_hr, min_diff))
+    hr_set = sorted(list(hr_set))
+    for index in range(0, len(hr_set)):
+        hr_set[index] = padding(hr_set[index]) + ":" + padding(random.randrange(0, 59, 1))
+    return hr_set
 
 
-msg_order_dict = {}
-timestamps = randomize_Time(minimum_hr_diff)
-msg_order_dict[timestamps[0]] = "1st"
-msg_order_dict[timestamps[1]] = "2nd"
-load_contacts(contacts_filepath, name_number_dict, number_link_dict)
-
-
-def send_message(message_order):
-    def load_messages(filepath):
-        messages_list = []
-        df = pd.read_excel(filepath)
-        for row in df.index:
-            messages_list.append(
-                (df['message'][row] % (name, message_order, today, link, disclaimer)).format(newline='\n'))
-        return messages_list
-
-    if message_order == "2nd":
-        disclaimer = f"\nIf you missed the first diary of the day, then just fill out this one (2nd one) and do not worry about the first one."
-    else:
-        disclaimer = ""
-    for nameKey in name_number_dict:
-        name = nameKey
-        number = name_number_dict[name]
-        link = number_link_dict[number]
-        today = datetime.datetime.now().strftime('%B, %d')
-        messages = load_messages(message_filepath)
-        resp = requests.post('http://textbelt.com/text', {
-            'phone': str(number),
-            'message': random.choice(messages),
-            'key': API_KEY
-        })
-        print(resp.json())
-
-
-schedule.every().day.at(timestamps[0]).do(send_message, message_order=msg_order_dict[timestamps[0]])
-schedule.every().day.at(timestamps[1]).do(send_message, message_order=msg_order_dict[timestamps[1]])
+timestamps = randTimeV2(minimum_time_diff_in_hrs, messages_per_person)
 print(timestamps)
+message_receivers_list = load_contactsV2(contacts_filepath)
+load_messagesV2(messages_filepath, message_receivers_list, messages_per_person)
 
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+for Time in timestamps:
+    schedule.every().day.at(Time).do(send_messageV2)
 
-send_message('2nd')
+while True:
+    schedule.run_pending()
+    time.sleep(1)
