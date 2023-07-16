@@ -57,6 +57,7 @@ def send_messageV2():
         print(resp.json())
 
 
+
 def randTimeV2(min_diff, num_of_sms):
     def padding(num):
         if num < 10:
@@ -84,6 +85,9 @@ load_messagesV2(messages_filepath, message_receivers_list, messages_per_person)
 for Time in timestamps:
     schedule.every().day.at(Time).do(send_messageV2)
 
+
 while True:
     schedule.run_pending()
     time.sleep(1)
+
+
